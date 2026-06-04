@@ -11,6 +11,7 @@ public:
     
     void Update(Rectangle ground);
     void Draw();
+    std::vector<Orb>& GetOrbs();
 
 public:
  

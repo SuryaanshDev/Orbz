@@ -95,3 +95,8 @@ Vector2 Player:: GetPlayerPosition() {
 
     return position;
 }
+
+std::vector<Orb>& Player::GetOrbs() {
+
+    return orbs;
+}
