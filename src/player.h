@@ -9,7 +9,7 @@ public:
 
     Player();
     
-    void Update(Rectangle ground);
+    void Update(std::vector<Rectangle>& platforms);
     void Draw();
     std::vector<Orb>& GetOrbs();
 

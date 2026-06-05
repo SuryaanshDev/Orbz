@@ -1,6 +1,7 @@
 #include "player.h"
 #include "enemy.h"
 #include "orb.h"
+#include "level.h"
 
 int main() 
 {
@@ -11,7 +12,7 @@ int main()
     SetTargetFPS(120);
     
     Player player;
-    Enemy enemy(1200, 830);
+    Level level;
     Rectangle ground = {0, 900, 10000, 500}; 
     Camera2D camera = {0};
     camera.zoom = 1.0f;
@@ -23,24 +24,29 @@ int main()
     while (!WindowShouldClose())
     {
 
-        player.Update(ground);
+        player.Update(level.GetPlatforms());
         camera.target.x += (player.GetPlayerPosition().x - camera.target.x) * damping;
         camera.target.y += (player.GetPlayerPosition().y - 200 - camera.target.y) * damping;
         
-        for (auto& orbs : player.GetOrbs()) {
+        //Checking for collisions
+        for (auto& enemy : level.GetEnemies()) {
 
-            if (enemy.isAlive() && CheckCollisionRecs(enemy.GetRect(), orbs.GetRect())) {
+            for (auto& orb : player.GetOrbs()) {
 
-                enemy.Kill();
+                if (enemy.isAlive() && CheckCollisionRecs(orb.GetRect(), enemy.GetRect())) {
+
+                    enemy.Kill();
+                    orb.Destroy();
+                }
             }
-        }
+        } 
 
         BeginDrawing();
             ClearBackground(BLACK);
             BeginMode2D(camera);
                 DrawRectangleRec(ground, GREEN);
+                level.Draw();
                 player.Draw();   
-                enemy.Draw();
             EndMode2D();
         EndDrawing();
     }

@@ -9,11 +9,16 @@ class Orb {
         void Update(float dt);
         void Draw();
         Rectangle GetRect() const;
+        void Destroy();
+        bool isActive() const;
 
     private:
 
-        float orbSpeed;
         Rectangle rect;
+        float orbSpeed;
+        float distanceTravelled;
+        float maxDistance;
         float speed;
         float direction;
+        bool active;
 };

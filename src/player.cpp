@@ -1,4 +1,5 @@
 #include "player.h"
+#include <algorithm>
 
 Player::Player()
 : height(80), width(70), speed(500), gravity(1000),maxJump(2),jumpCount(0), position({100, 600}), velocity({0, 0}), isGrounded(false),
@@ -6,7 +7,7 @@ facingRight(true)
 {
 }
 
-void Player::Update(Rectangle ground) {
+void Player::Update(std::vector<Rectangle>& platforms) {
     
     float dt = GetFrameTime();
     Player::Move();
@@ -14,15 +15,21 @@ void Player::Update(Rectangle ground) {
     //Collision
     Rectangle playerRect = {position.x, position.y, width, height};
 
-    if (CheckCollisionRecs(playerRect, ground)) {
+    bool landed = false;
 
-        position.y = ground.y - height;
-        velocity.y = 0;
-        isGrounded = true;
-        jumpCount = 0;
+    for (const auto& platform : platforms) {
+
+        if (CheckCollisionRecs(playerRect, platform)) {
+
+            position.y = platform.y - height;
+            velocity.y = 0;
+            isGrounded = true;
+            jumpCount = 0;
+            landed = true;             
+        }
     }
 
-    else {
+    if (!landed) {
 
         isGrounded = false;
     }
@@ -32,6 +39,8 @@ void Player::Update(Rectangle ground) {
 
         orb.Update(dt);
     }
+
+    orbs.erase(std::remove_if(orbs.begin(), orbs.end(), [](const Orb& orb){return !orb.isActive();}), orbs.end()) ;
 }
 
 void Player::Move() {
