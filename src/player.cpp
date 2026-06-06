@@ -2,7 +2,7 @@
 #include <algorithm>
 
 Player::Player()
-: height(80), width(70), speed(500), gravity(1000),maxJump(2),jumpCount(0), position({100, 600}), velocity({0, 0}), isGrounded(false),
+: height(80), width(70), speed(500), gravity(1000),maxJump(2),jumpCount(0), velocity({0, 0}), isGrounded(false),
 facingRight(true)
 {
 }
@@ -108,4 +108,9 @@ Vector2 Player:: GetPlayerPosition() {
 std::vector<Orb>& Player::GetOrbs() {
 
     return orbs;
+}
+
+void Player::SetPlayerPosition(Vector2 pos) {
+
+    position = pos;
 }

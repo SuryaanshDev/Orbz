@@ -13,7 +13,9 @@ int main()
     
     Player player;
     Level level;
-    Rectangle ground = {0, 900, 10000, 500}; 
+
+    player.SetPlayerPosition(level.GetPlayerSpawn());
+    //Rectangle ground = {0, 900, 10000, 500}; 
     Camera2D camera = {0};
     camera.zoom = 1.0f;
     
@@ -44,7 +46,7 @@ int main()
         BeginDrawing();
             ClearBackground(BLACK);
             BeginMode2D(camera);
-                DrawRectangleRec(ground, GREEN);
+                //DrawRectangleRec(ground, GREEN);
                 level.Draw();
                 player.Draw();   
             EndMode2D();

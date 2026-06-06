@@ -16,7 +16,7 @@ public:
 public:
  
     Vector2 GetPlayerPosition();
-
+    void SetPlayerPosition(Vector2 pos);
 private:
 
     void Move();
