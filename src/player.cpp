@@ -1,16 +1,39 @@
 #include "player.h"
 #include <algorithm>
+#include <iostream>
 
 Player::Player()
-: height(80), width(70), speed(500), gravity(1000),maxJump(2),jumpCount(0), velocity({0, 0}), isGrounded(false),
-facingRight(true)
+: height(32*3), width(32*3), speed(500), gravity(1000),maxJump(2),jumpCount(0), velocity({0, 0}), isGrounded(false),
+facingRight(true), isAttacking(false), orbSpawned(false)
 {
+
+    idleAnimation.texture         = LoadTexture("assets/player/idle.png");
+    idleAnimation.frameCount      = 6;
+    idleAnimation.frameDuration   = 0.1f;
+    idleAnimation.looping         = true;
+
+    animator.Play(&idleAnimation);
+
+    runAnimation.texture          = LoadTexture("assets/player/running.png");
+    runAnimation.frameCount       = 8;
+    runAnimation.frameDuration    = 0.1f;
+    runAnimation.looping          = true;
+
+    attackAnimation.texture       = LoadTexture("assets/player/attack.png");
+    attackAnimation.frameCount    = 10;
+    attackAnimation.frameDuration = 0.03;
+    attackAnimation.looping       = false;
+    
+    jumpAnimation.texture         = LoadTexture("assets/player/jump.png");
+    jumpAnimation.frameCount      = 6;
+    jumpAnimation.frameDuration   = 0.08f;
+    jumpAnimation.looping         = true;
 }
 
 void Player::Update(std::vector<Rectangle>& platforms) {
     
     float dt = GetFrameTime();
-    Player::Move();
+    Move();
 
     //Collision
     Rectangle playerRect = {position.x, position.y, width, height};
@@ -41,26 +64,73 @@ void Player::Update(std::vector<Rectangle>& platforms) {
     }
 
     orbs.erase(std::remove_if(orbs.begin(), orbs.end(), [](const Orb& orb){return !orb.isActive();}), orbs.end()) ;
+
+    //Animations
+
+    if (isAttacking) {
+
+
+    }
+
+    else if(!isGrounded) {
+
+       animator.Play(&jumpAnimation); 
+    }
+
+    else if (velocity.x == 0) {
+
+        animator.Play(&idleAnimation);
+    }
+
+    else {
+
+        animator.Play(&runAnimation);
+    }
+
+    animator.Update(dt);
+
+    if (isAttacking) {
+
+        if (animator.GetCurrentFrame() == 9 && !orbSpawned) {
+
+            Attack();
+            orbSpawned = true;
+        }
+
+        if (animator.AnimationFinished()) {
+
+            isAttacking = false;
+            orbSpawned  = false;
+        }
+    }
 }
 
 void Player::Move() {
     float dt = GetFrameTime();
 
-    if (IsKeyDown(KEY_D)) {
+    if (isAttacking) {
 
-        velocity.x = speed;
-        facingRight = true;
-    }
-
-    else if (IsKeyDown(KEY_A)) {
-
-        velocity.x = -speed;
-        facingRight = false;
+        velocity.x = 0;
     }
 
     else {
 
-        velocity.x = 0;
+        if (IsKeyDown(KEY_D)) {
+
+            velocity.x = speed;
+            facingRight = true;
+        }
+
+        else if (IsKeyDown(KEY_A)) {
+
+            velocity.x = -speed;
+            facingRight = false;
+        }
+
+        else {
+
+            velocity.x = 0;
+        }        
     }
 
     velocity.y += gravity * dt;
@@ -72,9 +142,12 @@ void Player::Move() {
         jumpCount++;
     }
 
-    if (IsKeyPressed(KEY_J)) {
+    if (IsKeyPressed(KEY_J) && !isAttacking) {
 
-        Attack();
+        isAttacking = true;
+        orbSpawned  = false;
+        
+        animator.Play(&attackAnimation);
     }
 
 // Final velocities for player movement
@@ -90,14 +163,22 @@ void Player::Attack() {
 }
 
 void Player::Draw() {
-    
-    Rectangle rect = {position.x, position.y, width, height};
-    DrawRectangleRec(rect, RED);
+
+    DrawRectangleLines(position.x, position.y, width, height, RED);
+
+    animator.Draw(position, facingRight, width, height);    
 
     for (auto& orb: orbs) {
 
         orb.Draw();
     }
+}
+
+Player::~Player() 
+{
+    UnloadTexture(idleAnimation.texture);
+    UnloadTexture(runAnimation.texture);
+    UnloadTexture(attackAnimation.texture);
 }
 
 Vector2 Player:: GetPlayerPosition() {

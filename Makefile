@@ -348,7 +348,7 @@ OBJ_DIR = obj
 SRC = $(call rwildcard, *.c, *.h)
 #OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 #OBJS ?= main.c
-OBJS = src/main.cpp src/player.cpp src/orb.cpp src/enemy.cpp src/level.cpp
+OBJS = src/main.cpp src/player.cpp src/orb.cpp src/enemy.cpp src/level.cpp src/animator.cpp
 
 # For Android platform we call a custom Makefile.Android
 ifeq ($(PLATFORM),PLATFORM_ANDROID)

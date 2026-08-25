@@ -7,13 +7,25 @@
 class Player {
 private: 
 
-    Animator animator;
+    struct Animation {
+
+        Texture2D texture;
+        int frameCount;
+        float frameDuration;
+    };
+    //Animation variables
+    int currentFrame;
+    int frameWidth;
+    int frameHeight; 
+    
+    float animationTimer;
+    float frameDuration;
 
     //Animations
-    Animation idleAnimation;
     Animation runAnimation;
     Animation attackAnimation;
-    Animation jumpAnimation;
+
+    Animation* currentAnimation;
 
 public:
 
@@ -50,7 +62,4 @@ private:
     
     bool isGrounded;
     bool facingRight;
-    
-    bool isAttacking;
-    bool orbSpawned;
 };
