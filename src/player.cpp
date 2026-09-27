@@ -35,27 +35,14 @@ void Player::Update(std::vector<Rectangle>& platforms) {
     float dt = GetFrameTime();
     Move();
 
-    //Collision
-    Rectangle playerRect = {position.x, position.y, width, height};
+    velocity.y += gravity * dt;
 
-    bool landed = false;
+    MoveHorizontal(dt);
+    ResolveHorizontalCollisions(platforms);
 
-    for (const auto& platform : platforms) {
+    MoveVertical(dt);
+    ResolveVerticalCollisions(platforms);
 
-        if (CheckCollisionRecs(playerRect, platform)) {
-
-            position.y = platform.y - height;
-            velocity.y = 0;
-            isGrounded = true;
-            jumpCount  = 0;
-            landed     = true;             
-        }
-    }
-
-    if (!landed) {
-
-        isGrounded = false;
-    }
 
     //update orbs spawn
     for (auto& orb: orbs) {
@@ -69,7 +56,7 @@ void Player::Update(std::vector<Rectangle>& platforms) {
 
     if (isAttacking) {
 
-        
+        animator.Play(&attackAnimation);
     }
 
     else if(!isGrounded) {
@@ -106,7 +93,6 @@ void Player::Update(std::vector<Rectangle>& platforms) {
 }
 
 void Player::Move() {
-    float dt = GetFrameTime();
 
     if (isAttacking) {
 
@@ -133,8 +119,6 @@ void Player::Move() {
         }        
     }
 
-    velocity.y += gravity * dt;
-
     if (IsKeyPressed(KEY_SPACE) && jumpCount < maxJump) {
 
         velocity.y = -500;
@@ -146,12 +130,16 @@ void Player::Move() {
 
         isAttacking = true;
         orbSpawned  = false;
-        
-        animator.Play(&attackAnimation);
     }
+}
 
-// Final velocities for player movement
+void Player::MoveHorizontal(float dt) {
+
     position.x += velocity.x * dt;
+}
+
+void Player::MoveVertical(float dt) {
+
     position.y += velocity.y * dt;
 }
 
@@ -179,6 +167,7 @@ Player::~Player()
     UnloadTexture(idleAnimation.texture);
     UnloadTexture(runAnimation.texture);
     UnloadTexture(attackAnimation.texture);
+    UnloadTexture(jumpAnimation.texture);
 }
 
 Vector2 Player:: GetPlayerPosition() {
@@ -194,4 +183,75 @@ std::vector<Orb>& Player::GetOrbs() {
 void Player::SetPlayerPosition(Vector2 pos) {
 
     position = pos;
+}
+
+Rectangle Player::GetCollider() const {
+
+    return {position.x, position.y, width, height};
+}
+
+void Player::ResolveHorizontalCollisions(std::vector<Rectangle>& platforms) {
+
+    Rectangle playerRect = GetCollider();
+
+    for (const auto& platform : platforms) {
+
+        if (!CheckCollisionRecs(playerRect, platform)) {
+
+            continue;
+        }
+
+        if (velocity.x > 0) {
+
+            //Moving Right
+            float overlap = (playerRect.x + playerRect.width) - platform.x;
+
+            position.x -= overlap;
+            velocity.x = 0;
+            break;
+        }
+
+        else if (velocity.x < 0) {
+
+            //Moving Left
+            float overlap = (platform.x + platform.width) - playerRect.x;
+
+            position.x += overlap;
+            velocity.x = 0;
+            break;
+        }
+    }
+}
+
+void Player::ResolveVerticalCollisions(std::vector<Rectangle>& platforms) {
+
+    Rectangle playerRect = GetCollider();
+
+    isGrounded = false;
+
+    for (const auto& platform : platforms) {
+
+        if (!CheckCollisionRecs(playerRect, platform)) {
+
+            continue;
+        }
+
+        if (velocity.y > 0) {
+
+            float overlap = (playerRect.y + playerRect.height) - platform.y;
+            position.y -= overlap;
+            velocity.y = 0;
+            isGrounded = true;
+            jumpCount = 0;
+            break;
+        }
+
+        else if (velocity.y < 0) {
+
+            float overlap = (platform.y + platform.height) - playerRect.y;
+            position.y += overlap;
+            velocity.y = 0;
+            break;
+        }
+    }
 }

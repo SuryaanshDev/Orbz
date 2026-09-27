@@ -31,8 +31,14 @@ public:
 private:
 
     void Move();
+    void MoveHorizontal(float dt);
+    void MoveVertical(float dt);
     void Attack();
+    
+    void ResolveHorizontalCollisions(std::vector<Rectangle>& platforms);
+    void ResolveVerticalCollisions(std::vector<Rectangle>& platforms);
 
+    Rectangle GetCollider() const;
 private:
 
     float height;
