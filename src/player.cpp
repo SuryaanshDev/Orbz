@@ -47,8 +47,8 @@ void Player::Update(std::vector<Rectangle>& platforms) {
             position.y = platform.y - height;
             velocity.y = 0;
             isGrounded = true;
-            jumpCount = 0;
-            landed = true;             
+            jumpCount  = 0;
+            landed     = true;             
         }
     }
 
@@ -69,7 +69,7 @@ void Player::Update(std::vector<Rectangle>& platforms) {
 
     if (isAttacking) {
 
-
+        
     }
 
     else if(!isGrounded) {
